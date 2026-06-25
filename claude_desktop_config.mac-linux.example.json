@@ -1,15 +1,10 @@
 {
   "mcpServers": {
     "obsidian": {
-      "command": "cmd",
+      "command": "npx",
       "args": [
-        "/c",
-        "npx",
         "mcp-remote@latest",
-        "http://127.0.0.1:27123/mcp/",
-        "--allow-http",
-        "--transport",
-        "http-only",
+        "https://127.0.0.1:27124/mcp/",
         "--header",
         "Authorization: Bearer <tu_api_key_aqui>"
       ]
