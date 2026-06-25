@@ -1,0 +1,6 @@
+# No subas tu config real con tu API key
+claude_desktop_config.json
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "mcp-remote@latest",
+        "https://127.0.0.1:27124/mcp/",
+        "--header",
+        "Authorization: Bearer <tu_api_key_aqui>"
+      ]
+    }
+  }
+}
