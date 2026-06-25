@@ -13,7 +13,15 @@ Por defecto, las conversaciones de Claude quedan sueltas en el historial del cha
 - Una **plantilla de instrucciones de Proyecto** para que el guardado funcione sin copiar/pegar nada dentro de Projects de Claude
 - Una convención de **tags y notas "hub"** para que el grafo de Obsidian se mantenga conectado en vez de ser cientos de notas aisladas
 
-📋 **Índice:** [Cómo funciona](#cómo-funciona-arquitectura) · [Instalación](#instalación) · [Uso](#uso) · [Troubleshooting](#troubleshooting) · [Preguntas frecuentes](#cómo-funciona-en-la-práctica-preguntas-frecuentes) · [Limitaciones](#notas-y-limitaciones)
+📋 **Índice:** [Cómo funciona](#cómo-funciona-arquitectura) · [Seguridad y privacidad](#seguridad-y-privacidad) · [Instalación](#instalación) · [Uso](#uso) · [Troubleshooting](#troubleshooting) · [Preguntas frecuentes](#cómo-funciona-en-la-práctica-preguntas-frecuentes) · [Desconectar](#cómo-desconectar--desinstalar) · [Limitaciones](#notas-y-limitaciones)
+
+## Seguridad y privacidad
+
+- **Todo corre en localhost.** El plugin de Obsidian escucha en `127.0.0.1` — tu vault nunca sale de tu computadora ni pasa por servidores de Anthropic ni de terceros. La API key autentica conexiones *locales* entre Claude Desktop y Obsidian, ambos corriendo en la misma máquina.
+- **`--allow-http` no es un riesgo de red.** Se usa para evitar el certificado autofirmado del plugin, pero como el tráfico nunca sale de `127.0.0.1`, no hay nadie en la red que pueda interceptarlo. No usar esta configuración apuntando a una IP o dominio que no sea `127.0.0.1`/`localhost`.
+- **No requiere plan de pago.** Funciona con Claude Desktop free — lo único que importa es tener la app de escritorio (no la versión web) y un vault de Obsidian local.
+- **Es Claude Desktop, no Claude Code.** Este setup usa la app de chat de escritorio. Si usás Claude Code (la herramienta de terminal para programar), la integración con Obsidian se configura distinto — buscá "Claude Code Obsidian MCP" en vez de seguir esta guía.
+- Tratá tu API key como cualquier contraseña: no la subas a git, no la compartas en capturas de pantalla. El `.gitignore` de este repo ya excluye `claude_desktop_config.json` por las dudas, pero la responsabilidad final es tuya al editar el archivo real en tu sistema.
 
 ## Cómo funciona (arquitectura)
 
@@ -122,6 +130,8 @@ Pegá el contenido de [`templates/project-instructions.md`](./templates/project-
 
 Esta sección documenta los problemas reales encontrados al armar este setup en Windows, en el orden en que conviene descartarlos.
 
+> 🍎 **Si usás Mac o Linux:** los primeros tres problemas (archivo de config equivocado, `"C:\Program"` no reconocido, `cmd /c`) son específicos de Windows y no aplican. El problema de la **API key incompleta/mal copiada** (más abajo) sí puede pasarte en cualquier sistema — es el más probable si te falla la autenticación. Si encontrás un problema propio de Mac/Linux que no esté documentado acá, una PR es bienvenida.
+
 ### "obsidian" no aparece en Settings → Desarrollador → Servidores MCP locales
 
 **Causa más común: estás editando el archivo de config equivocado.**
@@ -199,6 +209,18 @@ A todo el vault, sin restricción de carpeta — las herramientas del plugin (es
 **¿Cómo determino a qué vault está escribiendo, si tengo varios?**
 El plugin REST API corre dentro de la instancia de Obsidian que tengas abierta — no hay forma de elegir el vault desde la config de Claude. Si abrís dos vaults en dos ventanas, compiten por el mismo puerto y solo el primero lo consigue. Para confirmar a cuál estás conectado, pedile a Claude "Listá los archivos de la raíz de mi vault" y comparalo con lo que ves en el explorador de Obsidian.
 
+## Cómo desconectar / desinstalar
+
+Si en algún momento querés dejar de usar esto, no hace falta desinstalar nada del sistema — alcanza con:
+
+1. Abrí el archivo de config real (con el botón **"Editar configuración"** en Settings → Desarrollador → Servidores MCP locales, no a ciegas en `%APPDATA%`)
+2. Borrá el bloque `"obsidian": { ... }` de adentro de `mcpServers` (si era la única entrada, podés dejar `"mcpServers": {}` vacío, o borrar la clave entera si no tenés otros servidores)
+3. Guardá y reiniciá Claude Desktop
+
+Las notas que ya se crearon en tu vault **no se borran** — son archivos Markdown normales, quedan ahí igual que cualquier otra nota de Obsidian. Solo se desactiva la capacidad de Claude de seguir leyendo/escribiendo.
+
+Si además querés quitar el plugin de Obsidian: **Settings → Community plugins → "Local REST API with MCP" → Desinstalar**.
+
 ## Notas y limitaciones
 
 - **Obsidian tiene que estar abierto** para que cualquiera de esto funcione (ver preguntas frecuentes arriba).
@@ -211,3 +233,7 @@ El plugin REST API corre dentro de la instancia de Obsidian que tengas abierta �
 ## Licencia
 
 MIT — usalo, modificalo y compartilo como quieras.
+
+## Origen
+
+La sección de Troubleshooting nació de una sesión real de instalación en Windows, documentando cada error tal como apareció (incluyendo el bug más esquivo: una API key copiada con 4 caracteres faltantes). Si encontrás un problema nuevo no documentado acá, considerá agregarlo via PR para que la próxima persona no tenga que repetir el mismo camino.
