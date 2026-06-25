@@ -13,7 +13,7 @@ Por defecto, las conversaciones de Claude quedan sueltas en el historial del cha
 - Una **plantilla de instrucciones de Proyecto** para que el guardado funcione sin copiar/pegar nada dentro de Projects de Claude
 - Una convención de **tags y notas "hub"** para que el grafo de Obsidian se mantenga conectado en vez de ser cientos de notas aisladas
 
-📋 **Índice:** [Cómo funciona](#cómo-funciona-arquitectura) · [Instalación](#instalación) · [Uso](#uso) · [Troubleshooting](#troubleshooting) · [Limitaciones](#notas-y-limitaciones)
+📋 **Índice:** [Cómo funciona](#cómo-funciona-arquitectura) · [Instalación](#instalación) · [Uso](#uso) · [Troubleshooting](#troubleshooting) · [Preguntas frecuentes](#cómo-funciona-en-la-práctica-preguntas-frecuentes) · [Limitaciones](#notas-y-limitaciones)
 
 ## Cómo funciona (arquitectura)
 
@@ -185,8 +185,23 @@ Repetir esta prueba con `curl` antes de tocar la config de Claude Desktop ahorra
 ### Cómo ver los logs en general
 **Settings → Desarrollador → Servidores MCP locales → (nombre del servidor) → "Ver registros"**. Las líneas más recientes están al final; buscá el bloque que empieza con `Initializing server...` con la marca de tiempo más nueva.
 
+## Cómo funciona en la práctica (preguntas frecuentes)
+
+**¿Obsidian tiene que estar abierto?**
+Sí, siempre. El servidor MCP vive *dentro* del propio Obsidian (vía el plugin) — si cerrás Obsidian, el puerto deja de responder y vas a ver "Server disconnected" en Claude Desktop. No hace falta que la ventana esté en foco, solo que el proceso esté corriendo.
+
+**¿Esto le da a Claude memoria automática de mi vault en todos los chats?**
+No. La herramienta queda *disponible* en cualquier chat de Claude Desktop, pero Claude no "sabe" lo que hay en tu vault sin que se lo pidas — no carga el contenido de memoria al empezar una conversación. Cada vez que querés que consulte algo, hay que pedírselo explícitamente ("buscá en mi vault si tengo notas sobre X", "fijate qué dice mi nota de Finanzas").
+
+**Si se lo pido, ¿puede acceder a todo el vault, o solo a la carpeta `Claude/`?**
+A todo el vault, sin restricción de carpeta — las herramientas del plugin (escribir, buscar, leer, abrir archivos) no están limitadas a una subcarpeta. La búsqueda se hace por contenido/tags/frontmatter, así que mientras más específico el pedido (tag, nombre de nota, tema), más preciso el resultado.
+
+**¿Cómo determino a qué vault está escribiendo, si tengo varios?**
+El plugin REST API corre dentro de la instancia de Obsidian que tengas abierta — no hay forma de elegir el vault desde la config de Claude. Si abrís dos vaults en dos ventanas, compiten por el mismo puerto y solo el primero lo consigue. Para confirmar a cuál estás conectado, pedile a Claude "Listá los archivos de la raíz de mi vault" y comparalo con lo que ves en el explorador de Obsidian.
+
 ## Notas y limitaciones
 
+- **Obsidian tiene que estar abierto** para que cualquiera de esto funcione (ver preguntas frecuentes arriba).
 - El plugin usa un **certificado autofirmado**. Si tu cliente MCP se queja del certificado HTTPS, activá "Enable HTTP server" en la configuración del plugin y usá `http://127.0.0.1:27123/mcp/` en vez de la URL HTTPS.
 - Esto **no es automático en tiempo real** — necesitás pedirle explícitamente a Claude que guarde (o tener el comando en Project Instructions y escribir `/guardar`). Claude Desktop no tiene un modo "guardar todo sin que yo intervenga".
 - Las **Project Instructions solo aplican dentro de ese Project**. Para chats sueltos hay que usar el comando manual.
