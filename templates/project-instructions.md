@@ -25,3 +25,12 @@ o pide explícitamente guardar la sesión, usá las herramientas MCP de Obsidian
 - Cambiá "/guardar" por cualquier otra palabra clave que prefieras
 - Si querés transcripción completa en vez de resumen, reemplazá el punto 1
 - Si usás una estructura de carpetas distinta a Claude/ y Temas/, ajustá las rutas
+
+## Migrar el historial de este Project (conversaciones anteriores a este setup)
+
+Si este Project ya tenía conversaciones antes de configurar la integración con
+Obsidian, podés migrarlas todas de una vez — o incluso migrar TODO tu historial
+de Claude.ai sin filtrar, no solo este Project. Ver la sección "Migrar
+proyectos anteriores a la integración" en el README del repo para las tres
+opciones disponibles (volcado completo sin filtro, filtrado por proyecto, o
+búsqueda directa sin exportar datos). No hace falta repetirlo acá manualmente.

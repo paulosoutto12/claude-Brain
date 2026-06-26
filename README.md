@@ -12,8 +12,9 @@ Por defecto, las conversaciones de Claude quedan sueltas en el historial del cha
 - Un **comando** para pegar al final de cualquier chat suelto y que se guarde automáticamente
 - Una **plantilla de instrucciones de Proyecto** para que el guardado funcione sin copiar/pegar nada dentro de Projects de Claude
 - Una convención de **tags y notas "hub"** para que el grafo de Obsidian se mantenga conectado en vez de ser cientos de notas aisladas
+- Una guía para **migrar proyectos completos** que tuviste *antes* de tener esta integración configurada
 
-📋 **Índice:** [Cómo funciona](#cómo-funciona-arquitectura) · [Seguridad y privacidad](#seguridad-y-privacidad) · [Instalación](#instalación) · [Uso](#uso) · [Troubleshooting](#troubleshooting) · [Preguntas frecuentes](#cómo-funciona-en-la-práctica-preguntas-frecuentes) · [Desconectar](#cómo-desconectar--desinstalar) · [Limitaciones](#notas-y-limitaciones)
+📋 **Índice:** [Cómo funciona](#cómo-funciona-arquitectura) · [Seguridad y privacidad](#seguridad-y-privacidad) · [Instalación](#instalación) · [Uso](#uso) · [Migrar proyectos anteriores](#migrar-proyectos-anteriores-a-la-integración) · [Troubleshooting](#troubleshooting) · [Preguntas frecuentes](#cómo-funciona-en-la-práctica-preguntas-frecuentes) · [Desconectar](#cómo-desconectar--desinstalar) · [Limitaciones](#notas-y-limitaciones)
 
 ## Seguridad y privacidad
 
@@ -126,6 +127,74 @@ Copiá y pegá el contenido de [`templates/comando-chat-suelto.md`](./templates/
 ### Dentro de un Project de Claude
 Pegá el contenido de [`templates/project-instructions.md`](./templates/project-instructions.md) en **Custom Instructions** del Project. A partir de ahí, basta con escribir `/guardar` al final de cualquier chat de ese Project.
 
+## Migrar proyectos anteriores a la integración
+
+¿Tenías Projects o chats sueltos de Claude desde antes de configurar esta integración? Esas conversaciones **no se pierden** — siguen en tu historial de Claude.ai — y se pueden volcar igual al vault, en un solo proceso retroactivo. Hay tres formas de hacerlo, de la más abarcativa a la más puntual.
+
+### Opción 1 (recomendada) — Volcar todo el historial, sin filtrar
+
+Esta es la forma más simple si lo que querés es migrar **todo de una**, sin elegir proyecto por proyecto. Usa el export oficial de datos, así que no depende de una búsqueda por keywords y captura el historial completo de la cuenta.
+
+**Paso 1 — Pedir la exportación de datos a Anthropic**
+1. En [claude.ai](https://claude.ai) → ícono de perfil → **Settings**
+2. Sección **Account** (o "Privacy", según la versión) → **Export data**
+3. Confirmar la solicitud. Anthropic manda un mail con un link de descarga (puede tardar minutos u horas)
+4. El `.zip` descargado incluye un archivo `conversations.json` con **todas** tus conversaciones de **todos** los proyectos y chats sueltos
+
+**Paso 2 — Descomprimir en una carpeta accesible**
+Extraé el zip a una carpeta normal del sistema, por ejemplo `Documentos/claude-export/`. Esto usa la capacidad de Claude Desktop de leer archivos locales del sistema — es una capacidad distinta del MCP de Obsidian, y ya viene habilitada por defecto.
+
+**Paso 3 — Pedirle a Claude Desktop que migre todo**
+En un chat nuevo de Claude Desktop:
+
+```
+Tengo un export completo de Claude.ai en [ruta completa]/conversations.json.
+Quiero migrar TODO mi historial a mi vault de Obsidian, sin filtrar por proyecto.
+Para cada conversación, creá una nota en Claude/AAAA-MM/ (según la fecha real de
+la conversación), con el mismo formato que ya uso: frontmatter con tags/fecha/
+proyecto, un resumen, y links a notas hub de los temas relacionados en Temas/
+(creando el hub si no existe). Si la conversación pertenece a un Project,
+agregale además un link a un sub-hub en Proyectos/ con el nombre de ese Project
+(creándolo si no existe). Los chats sueltos (sin Project) no necesitan sub-hub
+en Proyectos/, solo los hubs de Temas/.
+Procesalo en tandas de a 10 conversaciones por vez para no cortar el proceso.
+```
+
+Esto deja todo organizado igual que si lo hubieras guardado en tiempo real: una nota por conversación, agrupada por mes, con los Projects como sub-hub en `Proyectos/` y los temas como hub en `Temas/`.
+
+> ⚠️ **Volumen:** si tu historial es grande (muchos meses o muchos Projects), esto puede generar una gran cantidad de notas de golpe. El pedido de procesar "en tandas" no es opcional en ese caso — ayuda a que Claude no se quede a mitad de camino y a que puedas revisar el resultado progresivamente.
+
+### Opción 2 — Filtrar por proyecto específico (export + filtro)
+
+Misma base que la Opción 1 (mismo export, mismos Pasos 1 y 2), pero limitando el pedido a un solo proyecto en vez de migrar todo:
+
+```
+Tengo un export de Claude.ai en [ruta completa]/conversations.json.
+Quiero que busques ahí todas las conversaciones del proyecto "[NOMBRE]",
+y para cada una crees una nota en mi vault de Obsidian en Claude/AAAA-MM/,
+siguiendo el mismo formato que ya uso: frontmatter con tags/fecha/proyecto,
+un resumen de la conversación, y links a notas hub de los temas relacionados
+en Temas/ (creando el hub si todavía no existe).
+```
+
+Conviene esta variante si solo te interesa un proyecto puntual y preferís no tocar el resto del historial todavía.
+
+### Opción 3 — Método rápido sin exportar (búsqueda directa)
+
+Si no querés pasar por el export de datos, Claude Desktop también puede buscar directamente en tu historial de conversaciones por tema o palabra clave (sin necesidad del JSON). Alcanza con pedirle, en un chat nuevo:
+
+```
+Buscá todas las conversaciones del proyecto "[NOMBRE]" en mi historial y volcalas
+a mi vault de Obsidian, una nota por conversación, siguiendo la misma estructura
+que ya uso (frontmatter de tags/fecha/proyecto, resumen, links a notas hub en Temas/).
+```
+
+**Límite real:** la búsqueda es por relevancia, no un volcado garantizado al 100%. Funciona bien para proyectos chicos o medianos, o para encontrar algo puntual; en proyectos con muchísimas conversaciones (o para migrar *todo* el historial sin filtrar) puede que se escape contenido — para eso conviene la Opción 1.
+
+### Después de migrar — revisar el grafo en Obsidian
+
+Cualquiera sea la opción elegida, una vez migrado conviene abrir Obsidian y chequear que los links entre las notas nuevas y los hubs se crearon bien, y que no haya quedado ninguna nota duplicada si alguna conversación ya había sido guardada manualmente antes de tener el MCP configurado.
+
 ## Troubleshooting
 
 Esta sección documenta los problemas reales encontrados al armar este setup en Windows, en el orden en que conviene descartarlos.
@@ -229,6 +298,7 @@ Si además querés quitar el plugin de Obsidian: **Settings → Community plugin
 - Las **Project Instructions solo aplican dentro de ese Project**. Para chats sueltos hay que usar el comando manual.
 - Si renombrás o movés archivos del vault directamente desde el sistema de archivos (no desde Obsidian), los `[[wikilinks]]` pueden romperse, porque Obsidian solo actualiza links automáticamente cuando el renombrado pasa por la propia app.
 - Esto guarda **resúmenes**, no transcripciones completas, para mantener las notas livianas. Si preferís transcripción completa, editá la plantilla.
+- La migración de proyectos anteriores (ver sección arriba) depende de que el historial siga disponible en tu cuenta de Claude.ai — si borraste manualmente esas conversaciones, ya no se pueden recuperar.
 
 ## Licencia
 
